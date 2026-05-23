@@ -4,7 +4,7 @@ description: >-
   blasting, smelting, ranks, shop, and an in-game stats phone.
 ---
 
-# ls_mining
+# Mining & Smelting
 
 ## Overview
 
