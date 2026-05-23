@@ -25,7 +25,7 @@
   * [Locale | Translations](premium-scripts/cartel-heist/locale-or-translations.md)
 * [Manual handbrake](premium-scripts/manual-handbrake/README.md)
   * [Config](premium-scripts/manual-handbrake/config.md)
-* [Mining](premium-scripts/mining/README.md)
+* [Mining & Smelting](premium-scripts/mining/README.md)
   * [Config](premium-scripts/mining/config.md)
   * [Locale | Translations](premium-scripts/mining/locale-or-translations.md)
 * [Mower job](premium-scripts/mower-job/README.md)
