@@ -183,13 +183,6 @@ Mining XP accumulates on the **player experience record**. Ranks unlock perks (y
 
 Players open the floating UI with the command set in `Config.mining_phone.command` (default `/miningPhone`). Optional keybind defaults to `J` when `register_keybind = true`.
 
-Example routes:
-
-* `/miningPhone` — Mining stats tab
-* `/miningPhone smelting/` — Smelting stats tab
-* `/miningPhone leaderboards/` — Leaderboards
-* `/miningPhone shop/` — Mining shop
-
 ## Troubleshooting
 
 ### Resource not starting
