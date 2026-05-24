@@ -24,27 +24,29 @@ Complete default config as shipped. Edit this file in your resource folder.
 ```lua
 Config = {}
 
---- Floating mining phone UI (stats, shop, leaderboards). Third-party phone apps use a separate embed path.
+--- Floating mining phone UI (stats, shop, leaderboards).
 Config.mining_phone = {
     --- Chat command to open/close the UI (e.g. /miningPhone, /miningPhone leaderboards/)
     command = 'miningPhone',
+    --- When true, skips the native command and keybind (for servers using third-party phone apps)
+    disable_command = false,
     --- When true, registers a FiveM keybind; players can rebind it in Settings → Key Bindings → FiveM
     register_keybind = true,
     --- Default key when register_keybind is true (e.g. 'F7', 'F6', 'm')
     default_keybind = 'J',
 }
 
---- Client-only layout zone labels inside cave interiors (see CONTEXT.md: Config debug mode).
+--- Enable this when you want to see zone numbers in caves
 Config.debug = false
 
 --- Global blocker defaults (per-zone overrides: blocker_xp, dynamite_needed)
 Config.blocker = {
-    xp = 50,
+    xp = 500,
     dynamite_needed = 1,
     interaction_distance = 20.0,
     model = 'ls_blocker',
     z_spawn_offset = -1.0,
-    --- Blast knockback (see CONTEXT.md: Blast knockback)
+    --Knockback happens when players stand too close to the dynamite explosions (no health damage)
     blast_knockback_radius = 50.0,
     blast_knockback_force = 20.0,
     blast_knockback_ragdoll_ms = 2000,
@@ -65,8 +67,6 @@ Config.cave_reset_enabled = true
 --- Defaults for layout zones not listed in Config.caves (e.g. open_zone)
 Config.cave_zone_defaults = {
     max_rocks = 100,
-    --- Legacy field; pickaxe mining uses shop pickaxe `damage_per_hit` instead.
-    damage_per_hit = 8,
     exp_per_hit = {
         chance = 100,
         exp = 15,
@@ -133,7 +133,7 @@ Config.caves = {
             player = vector3(61.27, 35.15, -2.5),
         },
         reset = {
-            hours = 24,
+            hours = 24, -- how many hours until cave blocking rocks respawn or until server restart
         },
         zones = {
             open_zone = {
@@ -431,7 +431,27 @@ Config.items = {
 --- Rock preset loot is granted once on destruction (**Rock destruction payout**).
 --- Item counts below are ~5× the former per-hit baseline to preserve ore/hour after removing `drop_chance`.
 Config.rock_presets = {
-    gold = {
+    iron = {
+        model = 'ls_iron',
+        health = 100,
+        item_chances = {
+            common = 80,  --%
+            rare = 17,    --%
+            legendary = 3 --%
+        },
+        items = {
+            common = {
+                ls_iron_ore = math.random(1, 2),
+            },
+            rare = {
+                ls_iron_ore = math.random(3, 5),
+            },
+            legendary = {
+                ls_copper_ore = 1
+            }
+        }
+    },
+    copper = {
         model = 'ls_copper',
         health = 100,
         item_chances = {
@@ -441,19 +461,18 @@ Config.rock_presets = {
         },
         items = {
             common = {
-                rock = math.random(5, 10),
-                ls_silver_ore = math.random(5, 10)
+                ls_copper_ore = math.random(1, 2),
             },
             rare = {
-                goldore = math.random(5, 10),
+                ls_copper_ore = math.random(3, 5),
             },
             legendary = {
-                diamond = math.random(5, 10)
+                ls_silver_ore = 1
             }
         }
     },
-    copper = {
-        model = 'ls_iron_ore',
+    silver = {
+        model = 'ls_silver',
         health = 100,
         item_chances = {
             common = 80,  --%
@@ -462,17 +481,36 @@ Config.rock_presets = {
         },
         items = {
             common = {
-                rock = math.random(5, 10),
-                ls_silver_ore = math.random(5, 10)
+                ls_silver_ore = math.random(1, 2),
             },
             rare = {
-                goldore = math.random(5, 10),
+                ls_silver_ore = math.random(3, 5),
             },
             legendary = {
-                diamond = math.random(5, 10)
+                ls_gold_ore = 1
             }
         }
-    }
+    },
+    gold = {
+        model = 'ls_gold',
+        health = 100,
+        item_chances = {
+            common = 80,  --%
+            rare = 17,    --%
+            legendary = 3 --%
+        },
+        items = {
+            common = {
+                ls_gold_ore = math.random(1, 2),
+            },
+            rare = {
+                ls_gold_ore = math.random(3, 5),
+            },
+            legendary = {
+                ls_diamond = 1
+            }
+        }
+    },
 }
 
 Config.shop_crate = {
@@ -686,7 +724,7 @@ Section-by-section notes for the most commonly changed values.
 ### General
 
 * `Config.debug` — client-only **layout zone debug labels** inside caves. Leave `false` on production.
-* `Config.mining_phone` — stats phone command and optional keybind.
+* `Config.mining_phone` — stats phone command and optional keybind. Set `disable_command = true` when a third-party phone app opens the mining UI instead.
 * `Config.cave_reset_enabled` — global cave reset toggle; per-cave `reset.enabled = false` overrides one cave.
 
 ### Framework and integration
@@ -732,7 +770,7 @@ Zone `damage_per_hit` is legacy. **Pickaxe damage** comes from `shop/items.lua` 
 
 ### Rock loot, smelting, economy
 
-* `Config.rock_presets` — **rock destruction payout** on zero health (one roll per rock).
+* `Config.rock_presets` — **rock destruction payout** on zero health (one roll per rock). Default presets: `iron`, `copper`, `silver`, `gold` — each tier drops its ore with rare/legendary upgrades to the next tier.
 * `Config.smelting` — ore-to-bar recipes and smelting minigame props.
 * `Config.items` — NPC sell price bounds; live prices use `EconomySettings`.
 
