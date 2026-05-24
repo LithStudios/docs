@@ -62,6 +62,25 @@ The resource does not auto-migrate schema. Apply any future `.sql` files manuall
 
 {% step %}
 
+### Add admin permissions
+
+Add one of the following to `server.cfg` so admins can place smelting tables, ore buyer NPCs, and shop crates:
+
+```cfg
+add_ace group.admin ls_mining.admin allow
+```
+
+Or grant permission to a specific license:
+
+```cfg
+add_ace fivem:XXXXXX ls_mining.admin allow
+```
+
+Replace `XXXXXX` with the admin's FiveM license identifier.
+{% endstep %}
+
+{% step %}
+
 ### Ensure in server.cfg
 
 ```cfg
@@ -76,11 +95,27 @@ Start `kq_link` and `ls_mining_props` before `ls_mining`.
 
 {% step %}
 
-### Restart and verify
+### Restart the server
 
-* Restart the server or run `refresh` then `ensure ls_mining`
+After changing `server.cfg`, **restart your entire server** for ACE permissions and `ensure` lines to take effect. `refresh` + `ensure` alone does not reload `server.cfg`.
+
+Then verify:
+
 * Check the console for dependency errors (missing kq_link exports, SQL, props)
 * Enter a configured cave hatch and test pickaxe mining on a dev server first
+{% endstep %}
+
+{% step %}
+
+### Place world features
+
+In-game, admins with `ls_mining.admin` can run `/place` to set up:
+
+* **Smelting tables** — where players smelt ore into bars
+* **Ore buyer NPCs** — where players sell bars and gems
+* **Shop crate locations** — where shop purchases spawn for pickup
+
+Switch modes in the placement UI, confirm each location where you want it, and delete or reset entries as needed. Positions are saved to MySQL and sync to all players.
 {% endstep %}
 {% endstepper %}
 
@@ -103,11 +138,7 @@ Some world features are placed at runtime and stored in MySQL (not hardcoded in 
 | Shop crate locations | `ls_mining_shop_crate` | Bootstraps from `Config.shop_crate` if empty |
 | Interior props | `ls_mining_interior_props` | Edited in-cave with `/mineinterior` |
 
-Grant admin access in `server.cfg`:
-
-```cfg
-add_ace group.admin ls_mining.admin allow
-```
+Grant `ls_mining.admin` during [installation](#installation), then use `/place` for smelting tables, ore buyers, and shop crates.
 
 ## Gameplay flow
 
