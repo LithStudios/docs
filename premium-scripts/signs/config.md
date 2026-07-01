@@ -1,4 +1,4 @@
-# Configuration
+# Config
 
 Server-owner tuning for `ls_signs` lives in `config.lua` at the resource root and `server/editables.lua` for admin permissions. After any change:
 
@@ -35,12 +35,6 @@ Config.openKeybind = '' -- e.g. 'F7' to register a key mapping, '' to disable
 -- Rendering
 --------------------------------------------------------------------------------
 
--- Distance (metres) at which a sign's glyphs spawn / despawn around the player.
-Config.renderDistance = 250.0
-
--- How often (ms) the distance loop re-evaluates which signs should be spawned.
-Config.streamInterval = 750
-
 -- Default font key used when the creator opens (must match a discovered text3d_font).
 Config.defaultFont = 'bebasneue'
 
@@ -62,7 +56,7 @@ Config.nearbyDistance = 50.0
 -- Layout
 --------------------------------------------------------------------------------
 
--- Vertical gap between lines, in font units (multiplied by the sign's scale).
+-- Vertical gap between lines.
 Config.lineGap = 1.15
 
 -- Line-spacing slider in the creator (font units). Only shown when text has 2+ lines.
@@ -83,13 +77,6 @@ Config.panelSizeRange = { min = 0.5, max = 3.0, step = 0.05, default = 1.0 }
 -- Text scale slider in the creator (uniform size of glyphs + panel). Clamped
 -- server-side on save.
 Config.scaleRange = { min = 0.1, max = 10.0, step = 0.05, default = 1.0 }
-
---------------------------------------------------------------------------------
--- Database
---------------------------------------------------------------------------------
-
--- 'oxmysql' | 'mysql-async'
-Config.sqlDriver = 'oxmysql'
 ```
 
 ## server/editables.lua (full file)
@@ -127,27 +114,18 @@ add_ace group.admin ls_signs.admin allow
 Config.openKeybind = 'F7'
 ```
 
-### Rendering and performance
+### Font and text limits
 
-Controls how signs appear for players and how often the client re-evaluates distance streaming.
+Controls the default font in the creator and how long sign text can be.
 
-* `Config.renderDistance` — Metres around each player where sign glyphs spawn. Lower on busy servers or if you have hundreds of signs; raise if signs pop in too late on highways.
-* `Config.streamInterval` — Milliseconds between distance checks. Lower = snappier spawn/despawn, slightly more client work. Default `750` is a good balance.
 * `Config.defaultFont` — Font key pre-selected when the creator opens. Must match a started resource's `text3d_font` metadata (e.g. `bebasneue` from `bebasneue_text`). Font packs are **separate resources** included in the [portal.cfx.re](https://portal.cfx.re) download — see [Font packs](./README.md#font-packs).
 * `Config.maxTextLength` — Character limit in the creator and on server save. Hard-capped at `256` regardless of config. Shorter limits reduce glyph prop count per sign.
 * `Config.debug` — Logs font discovery and other diagnostics to the client/server console. Leave `false` on production.
 
 After starting or stopping font resources at runtime, admins can run `/refreshfonts` to hot-reload the creator's font list without restarting `ls_signs`.
 
-**Example:** Tighter streaming for a dense city with many signs:
-
-```lua
-Config.renderDistance = 150.0
-Config.streamInterval = 500
-```
-
 {% hint style="info" %}
-Signs use client-local glyph props (not networked entities). Each player spawns their own copies within render distance — very large `renderDistance` values with many signs increase client entity load.
+Signs stream in by distance on each client (250 m, checked every 750 ms). These values are fixed in the client renderer — not configurable in `config.lua`. Signs use client-local glyph props (not networked entities).
 {% endhint %}
 
 ### Editor limits
@@ -184,7 +162,7 @@ Config.lineGapRange = { min = 0.4, max = 2.0, step = 0.05 }
 
 ### Database
 
-* `Config.sqlDriver` — Documented for `oxmysql` or `mysql-async`. **Current release uses oxmysql only** — ensure `oxmysql` is installed and started. The table `ls_signs` is created automatically; no manual SQL import is required.
+`ls_signs` requires **oxmysql** — ensure it is installed and started before `ls_signs`. The `ls_signs` table is created automatically on first boot; no manual SQL import is required.
 
 ## Locale
 
