@@ -7,7 +7,7 @@ refresh
 ensure ls_signs
 ```
 
-NUI strings are in `locale.lua` — see [Locale | Translations](./locale-or-translations.md). The sign creator UI (`web/`) is shipped pre-built; you only need to rebuild if you modify the web source yourself.
+NUI strings are in `locale.lua` — see [Locale](./locale.md). The sign creator UI (`web/`) is shipped pre-built; you only need to rebuild if you modify the web source yourself.
 
 ## config.lua (full file)
 
@@ -133,9 +133,11 @@ Controls how signs appear for players and how often the client re-evaluates dist
 
 * `Config.renderDistance` — Metres around each player where sign glyphs spawn. Lower on busy servers or if you have hundreds of signs; raise if signs pop in too late on highways.
 * `Config.streamInterval` — Milliseconds between distance checks. Lower = snappier spawn/despawn, slightly more client work. Default `750` is a good balance.
-* `Config.defaultFont` — Font key pre-selected when the creator opens. Must match a started resource's `text3d_font` metadata (e.g. `bebasneue` from `bebasneue_text`).
+* `Config.defaultFont` — Font key pre-selected when the creator opens. Must match a started resource's `text3d_font` metadata (e.g. `bebasneue` from `bebasneue_text`). Font packs are **separate resources** included in the [portal.cfx.re](https://portal.cfx.re) download — see [Font packs](./README.md#font-packs).
 * `Config.maxTextLength` — Character limit in the creator and on server save. Hard-capped at `256` regardless of config. Shorter limits reduce glyph prop count per sign.
 * `Config.debug` — Logs font discovery and other diagnostics to the client/server console. Leave `false` on production.
+
+After starting or stopping font resources at runtime, admins can run `/refreshfonts` to hot-reload the creator's font list without restarting `ls_signs`.
 
 **Example:** Tighter streaming for a dense city with many signs:
 
@@ -186,7 +188,7 @@ Config.lineGapRange = { min = 0.4, max = 2.0, step = 0.05 }
 
 ## Locale
 
-Player-facing strings for keybinds and similar UI labels are in `locale.lua`. See [Locale | Translations](./locale-or-translations.md).
+Player-facing strings for keybinds and similar UI labels are in `locale.lua`. See [Locale | Translations](./locale.md).
 
 ## After changing config
 

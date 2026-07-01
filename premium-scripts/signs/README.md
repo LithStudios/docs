@@ -15,7 +15,7 @@ Players and admins can:
 * See 3D text signs placed around the map (streamed in by distance)
 * Toggle sign visibility client-side with `/cd` (useful for screenshots or performance checks)
 * **Admins only:** Open the sign creator with `/signs`, place new signs, edit existing ones, or delete them
-* **Admins only:** Refresh the font list after starting new font resources with `/refreshfonts`
+* **Admins only:** Hot-reload the font list with `/refreshfonts` after starting or stopping font resources (no `ls_signs` restart needed)
 
 This resource is **standalone** — no ESX, QBCore, or framework dependency.
 
@@ -43,10 +43,14 @@ Put the `ls_signs` folder in your server resources directory (e.g. `/resources/[
 ### Install dependencies
 
 * **[oxmysql](https://github.com/overextended/oxmysql)** — required; `ls_signs` stores signs in MySQL/MariaDB.
-* **At least one Lith 3D font pack** — e.g. `bebasneue_text`. Each font resource declares `text3d_font '<key>'` in its manifest and must be **started** before players open the creator. Install any `*_text` packs you want available in the font dropdown.
+* **Lith 3D font packs** — shipped as **separate resources** in the same [portal.cfx.re](https://portal.cfx.re) download as `ls_signs` (e.g. `bebasneue_text`, `montserrat_text`). Copy each font folder into your resources directory and `ensure` the packs you want. Each declares `text3d_font '<key>'` in its manifest; only **started** fonts appear in the creator dropdown.
+
+{% hint style="info" %}
+You do not download fonts separately — they are included with the script package on the CFX portal. Install only the font resources you plan to use.
+{% endhint %}
 
 {% hint style="warning" %}
-Without a started font resource, the creator has no fonts to choose from. The default font key in `config.lua` (`bebasneue`) must match a discovered `text3d_font` key.
+Without at least one started font resource, the creator has no fonts to choose from. The default font key in `config.lua` (`bebasneue`) must match a discovered `text3d_font` key.
 {% endhint %}
 {% endstep %}
 
@@ -90,6 +94,27 @@ Add more `ensure <font>_text` lines for every font pack you install.
 
 {% hint style="info" %}
 No manual SQL import is required. The server creates the `ls_signs` table automatically on first boot.
+{% endhint %}
+
+## Font packs
+
+3D glyphs are provided by **separate font resources**, not by `ls_signs` itself. When you download `ls_signs` from [portal.cfx.re](https://portal.cfx.re), the package includes one or more `*_text` font resources alongside the main script.
+
+* Place each font folder in your resources directory (same as `ls_signs`).
+* Add `ensure <font>_text` lines to `server.cfg` **before** `ensure ls_signs`.
+* You only need to start the fonts you want in the creator — unused packs can stay on disk unstarted.
+
+### Hot-reload fonts with `/refreshfonts`
+
+After the server is running, admins can add or remove fonts **without restarting `ls_signs`**:
+
+1. `ensure` a new font resource, or `stop` one you no longer want.
+2. Run `/refreshfonts` in-game (admin only).
+
+The command re-scans started font resources and updates the creator's font dropdown immediately. Stopped fonts drop out of the list; newly started fonts become available for new and edited signs.
+
+{% hint style="info" %}
+`/refreshfonts` is per-client for the creator UI. Each admin should run it after font changes if they already have the creator open. New players pick up the current font list on join automatically.
 {% endhint %}
 
 ## Configuration
@@ -138,8 +163,8 @@ Each client streams signs within `Config.renderDistance` metres, spawning local 
 
 ### No fonts in the dropdown
 
-* Ensure at least one `*_text` font resource is started **before** `ls_signs`
-* Run `/refreshfonts` as an admin after adding new font packs
+* Font packs are **separate resources** from the same [portal.cfx.re](https://portal.cfx.re) download — copy and `ensure` at least one `*_text` pack before `ls_signs`
+* After starting or stopping a font at runtime, run `/refreshfonts` as an admin to update the dropdown without restarting `ls_signs`
 * Set `Config.defaultFont` to a key that matches an installed font's `text3d_font` metadata
 
 ### Signs not visible
