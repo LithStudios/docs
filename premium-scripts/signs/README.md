@@ -54,13 +54,7 @@ Without a started font resource, the creator has no fonts to choose from. The de
 
 ### Configure admin access
 
-Grant the ACE permission in `server.cfg` (or your permissions system):
-
-```cfg
-add_ace group.admin ls_signs.admin allow
-```
-
-Then wire the check in `server/editables.lua` — see [Access](./config.md#access).
+Grant the ACE permission in `server.cfg` (or your permissions system). The shipped `server/editables.lua` checks this permission by default — customize it only if you use a different admin system. See [Access](./config.md#access).
 
 {% endstep %}
 
@@ -133,7 +127,7 @@ Each client streams signs within `Config.renderDistance` metres, spawning local 
 ### Creator says no permission
 
 * Confirm `add_ace … ls_signs.admin allow` is in `server.cfg`
-* Ensure `server/editables.lua` uses `IsPlayerAceAllowed` (not the dev stub that returns `true` for everyone)
+* Confirm `server/editables.lua` returns `true` for your admin check (default: `IsPlayerAceAllowed` with `Config.acePermission`)
 * Restart the resource after editing `editables.lua`
 
 ### No fonts in the dropdown

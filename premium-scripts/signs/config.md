@@ -98,13 +98,12 @@ Complete default admin hook as shipped. Edit this file to connect your permissio
 
 ```lua
 function isAdmin(src)
-    return true
-    -- return IsPlayerAceAllowed(src, Config.acePermission)
+    return IsPlayerAceAllowed(src, Config.acePermission)
 end
 ```
 
-{% hint style="warning" %}
-The shipped default returns `true` for every player — suitable for local testing only. Before production, remove `return true` and enable the `IsPlayerAceAllowed` line (or replace with your framework's admin check).
+{% hint style="info" %}
+The default checks ACE via `Config.acePermission`. Replace the function body if you use a framework admin check or custom permission system instead.
 {% endhint %}
 
 ## Tuning guide
@@ -118,17 +117,10 @@ Controls who can open the sign creator and create, edit, or delete signs.
 * `Config.openKeybind` — Optional FiveM key mapping (e.g. `'F7'`). Leave `''` to disable. Label comes from `locale.lua` (`keybind.open_creator`).
 * `server/editables.lua` — `isAdmin(src)` must return `true` for allowed players. Wire to ACE, framework jobs, or your admin menu.
 
-**Example:** Restrict to admins with ACE and bind F7:
+**Example:** Grant ACE to admins and bind F7 to open the creator:
 
 ```cfg
 add_ace group.admin ls_signs.admin allow
-```
-
-```lua
--- server/editables.lua
-function isAdmin(src)
-    return IsPlayerAceAllowed(src, Config.acePermission)
-end
 ```
 
 ```lua
