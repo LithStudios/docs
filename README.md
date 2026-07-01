@@ -13,7 +13,7 @@ This collection includes professionally developed scripts spanning various categ
 * **Crime & Heist Systems** - Pickpocketing, snatch & grab, locker theft, cartel heist
 * **Job Systems** - Cleaning, lawn mowing
 * **Vehicle Systems** - Wheel spacers, handbrake, brake cutting
-* **Utility & Admin Tools** - Image placer, props viewer, bolt minigame
+* **Utility & Admin Tools** - Image placer, 3D signs, props viewer, bolt minigame
 
 ## Included Scripts
 
@@ -39,6 +39,7 @@ This collection includes professionally developed scripts spanning various categ
 
 * [Bolt Minigame](free-scripts/bolt-minigame/) - Interactive bolt tightening minigame
 * [Image Placer](premium-scripts/real-time-image-placer/) - Developer tool for placing images in-game
+* [Real-Time 3D Signs](premium-scripts/signs/) - Place persistent 3D text signs with Lith font packs
 * [Props Viewer](premium-scripts/viewable-props/) - Display images on props/objects
 
 ## Framework Support
