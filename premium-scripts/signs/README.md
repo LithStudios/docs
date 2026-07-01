@@ -21,7 +21,7 @@ This resource is **standalone** — no ESX, QBCore, or framework dependency.
 
 Main files:
 
-* `config.lua` — rendering distance, editor limits, layout defaults, SQL driver setting ([Configuration](./config.md))
+* `config.lua` — admin access, editor limits, layout defaults ([Configuration](./config.md))
 * `locale.lua` — player-facing strings ([Locale | Translations](./locale-or-translations.md))
 * `server/editables.lua` — admin permission hook ([Configuration](./config.md#servereditableslua-full-file))
 * `server/server.lua` — database persistence and sign sync (auto-creates the `ls_signs` table on first start)
@@ -119,7 +119,7 @@ The command re-scans started font resources and updates the creator's font dropd
 
 ## Configuration
 
-All tuning is in `config.lua` and `server/editables.lua`. See [Configuration](./config.md) for the full default files and a tuning guide for rendering, editor limits, and layout.
+All tuning is in `config.lua` and `server/editables.lua`. See [Configuration](./config.md) for the full default files and a tuning guide for editor limits and layout.
 
 ## Gameplay flow
 
@@ -149,7 +149,7 @@ Saving sends the sign to the server, which validates the payload, writes to the 
 
 ### Players see signs in the world
 
-Each client streams signs within `Config.renderDistance` metres, spawning local 3D glyph props. Players can hide signs locally with `/cd` without affecting others.
+Each client streams signs within 250 m, spawning local 3D glyph props. Players can hide signs locally with `/cd` without affecting others.
 {% endstep %}
 {% endstepper %}
 
