@@ -54,7 +54,13 @@ Without a started font resource, the creator has no fonts to choose from. The de
 
 ### Configure admin access
 
-Grant the ACE permission in `server.cfg` (or your permissions system). The shipped `server/editables.lua` checks this permission by default — customize it only if you use a different admin system. See [Access](./config.md#access).
+Grant the ACE permission in `server.cfg`. The shipped `server/editables.lua` checks `Config.acePermission` by default — customize it only if you use a different admin system.
+
+```cfg
+add_ace group.admin ls_signs.admin allow
+```
+
+See [Access](./config.md#access) for keybind and custom permission examples.
 
 {% endstep %}
 
