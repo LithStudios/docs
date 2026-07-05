@@ -13,7 +13,7 @@ description: >-
 Players and admins can:
 
 * See 3D text signs placed around the map (streamed in by distance)
-* Toggle sign visibility client-side with `/cd` (useful for screenshots or performance checks)
+* Toggle sign visibility client-side with `/togglesigns` (useful for screenshots or performance checks)
 * **Admins only:** Open the sign creator with `/signs`, place new signs, edit existing ones, or delete them
 * **Admins only:** Hot-reload the font list with `/refreshfonts` after starting or stopping font resources (no `ls_signs` restart needed)
 
@@ -21,7 +21,7 @@ This resource is **standalone** — no ESX, QBCore, or framework dependency.
 
 Main files:
 
-* `config.lua` — admin access, editor limits, layout defaults ([Configuration](./config.md))
+* `config.lua` — admin access, rendering, editor limits, layout defaults ([Configuration](./config.md))
 * `locale.lua` — player-facing strings ([Locale | Translations](./locale-or-translations.md))
 * `server/editables.lua` — admin permission hook ([Configuration](./config.md#servereditableslua-full-file))
 * `server/server.lua` — database persistence and sign sync (auto-creates the `ls_signs` table on first start)
@@ -50,7 +50,7 @@ You do not download fonts separately — they are included with the script packa
 {% endhint %}
 
 {% hint style="warning" %}
-Without at least one started font resource, the creator has no fonts to choose from. The default font key in `config.lua` (`bebasneue`) must match a discovered `text3d_font` key.
+Without at least one started font resource, the creator has no fonts to choose from. The default font key in `config.lua` (`bebas`) must match a discovered `text3d_font` key.
 {% endhint %}
 {% endstep %}
 
@@ -149,7 +149,7 @@ Saving sends the sign to the server, which validates the payload, writes to the 
 
 ### Players see signs in the world
 
-Each client streams signs within 250 m, spawning local 3D glyph props. Players can hide signs locally with `/cd` without affecting others.
+Each client streams signs within `Config.renderDistance` metres, spawning local 3D glyph props. Players can hide signs locally with `/togglesigns` (or your configured `Config.toggleCommand`) without affecting others. Signs are visible by default on join.
 {% endstep %}
 {% endstepper %}
 
@@ -169,8 +169,8 @@ Each client streams signs within 250 m, spawning local 3D glyph props. Players c
 
 ### Signs not visible
 
-* Run `/cd` — signs may be toggled off locally
-* Move closer; default render distance is 250 m
+* Run `/togglesigns` — signs may be toggled off locally
+* Move closer; default render distance is `Config.renderDistance` metres (150 m by default)
 * Check the server console for load errors and confirm signs exist in the `ls_signs` database table
 
 ### Database errors

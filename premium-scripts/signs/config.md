@@ -7,7 +7,7 @@ refresh
 ensure ls_signs
 ```
 
-NUI strings are in `locale.lua` — see [Locale](./locale.md). The sign creator UI (`web/`) is shipped pre-built; you only need to rebuild if you modify the web source yourself.
+NUI strings are in `locale.lua` — see [Locale](./locale-or-translations.md). The sign creator UI (`web/`) is shipped pre-built; you only need to rebuild if you modify the web source yourself.
 
 ## config.lua (full file)
 
@@ -31,16 +31,26 @@ Config.acePermission = 'ls_signs.admin'
 Config.openCommand = 'signs'
 Config.openKeybind = '' -- e.g. 'F7' to register a key mapping, '' to disable
 
+-- Chat command any player can use to toggle sign visibility locally (on by default).
+-- Set to '' to disable the command entirely.
+Config.toggleCommand = 'togglesigns'
+
 --------------------------------------------------------------------------------
 -- Rendering
 --------------------------------------------------------------------------------
 
+-- Distance (metres) at which a sign's glyphs spawn / despawn around the player.
+Config.renderDistance = 150.0
+
+-- How often (ms) the distance loop re-evaluates which signs should be spawned.
+Config.streamInterval = 750
+
 -- Default font key used when the creator opens (must match a discovered text3d_font).
-Config.defaultFont = 'bebasneue'
+Config.defaultFont = 'bebas'
 
 -- Maximum number of characters allowed in a sign's text (enforced in the creator
 -- and again server-side on save). Default 20, hard-capped at 256.
-Config.maxTextLength = 50
+Config.maxTextLength = 30
 
 --------------------------------------------------------------------------------
 -- Editor
@@ -56,11 +66,8 @@ Config.nearbyDistance = 50.0
 -- Layout
 --------------------------------------------------------------------------------
 
--- Vertical gap between lines.
+-- Vertical gap between lines, in font units (multiplied by the sign's scale).
 Config.lineGap = 1.15
-
--- Line-spacing slider in the creator (font units). Only shown when text has 2+ lines.
-Config.lineGapRange = { min = 0.5, max = 3.0, step = 0.05 }
 
 -- Padding added around the text block when auto-sizing the background panel,
 -- in font units (x = horizontal, y = vertical).
@@ -68,15 +75,18 @@ Config.panelPadding = { x = 0.25, y = 0.25 }
 
 -- Depth offset (font units) the panel sits behind the glyphs along the sign's
 -- local forward axis.
-Config.panelDepth = 0.08
+Config.panelDepth = 0.03
 
 -- Background-panel size sliders in the creator are multipliers on the auto-sized
 -- layout bounds (1.0 = fit text + padding). Clamped server-side on save.
 Config.panelSizeRange = { min = 0.5, max = 3.0, step = 0.05, default = 1.0 }
 
--- Text scale slider in the creator (uniform size of glyphs + panel). Clamped
--- server-side on save.
-Config.scaleRange = { min = 0.1, max = 10.0, step = 0.05, default = 1.0 }
+--------------------------------------------------------------------------------
+-- Database
+--------------------------------------------------------------------------------
+
+-- 'oxmysql' | 'mysql-async'
+Config.sqlDriver = 'oxmysql'
 ```
 
 ## server/editables.lua (full file)
@@ -102,6 +112,7 @@ Controls who can open the sign creator and create, edit, or delete signs.
 * `Config.acePermission` — ACE string checked server-side on every write. Grant with `add_ace group.admin ls_signs.admin allow` (or your group/identifier).
 * `Config.openCommand` — Chat command that opens the creator (default `signs`). Client-side UX gate only; the server still validates admin status on save.
 * `Config.openKeybind` — Optional FiveM key mapping (e.g. `'F7'`). Leave `''` to disable. Label comes from `locale.lua` (`keybind.open_creator`).
+* `Config.toggleCommand` — Chat command any player can use to hide or show signs **on their own client** (default `togglesigns`). Signs are visible on join. Set to `''` to disable the command. Does not affect other players or admin editor previews.
 * `server/editables.lua` — `isAdmin(src)` must return `true` for allowed players. Wire to ACE, framework jobs, or your admin menu.
 
 **Example:** Grant ACE to admins and bind F7 to open the creator:
@@ -114,18 +125,26 @@ add_ace group.admin ls_signs.admin allow
 Config.openKeybind = 'F7'
 ```
 
-### Font and text limits
+**Example:** Rename the visibility toggle for your community:
 
-Controls the default font in the creator and how long sign text can be.
+```lua
+Config.toggleCommand = 'hidesigns'
+```
 
-* `Config.defaultFont` — Font key pre-selected when the creator opens. Must match a started resource's `text3d_font` metadata (e.g. `bebasneue` from `bebasneue_text`). Font packs are **separate resources** included in the [portal.cfx.re](https://portal.cfx.re) download — see [Font packs](./README.md#font-packs).
+### Rendering
+
+Controls how far signs stream in and how often the client re-checks distance.
+
+* `Config.renderDistance` — Metres at which sign glyphs spawn/despawn around each player. Lower values reduce prop count and may help performance in sign-heavy areas.
+* `Config.streamInterval` — Milliseconds between distance checks. Lower values react faster when moving; higher values reduce CPU use.
+* `Config.defaultFont` — Font key pre-selected when the creator opens. Must match a started resource's `text3d_font` metadata. Font packs are **separate resources** included in the [portal.cfx.re](https://portal.cfx.re) download — see [Font packs](./README.md#font-packs).
 * `Config.maxTextLength` — Character limit in the creator and on server save. Hard-capped at `256` regardless of config. Shorter limits reduce glyph prop count per sign.
 * `Config.debug` — Logs font discovery and other diagnostics to the client/server console. Leave `false` on production.
 
 After starting or stopping font resources at runtime, admins can run `/refreshfonts` to hot-reload the creator's font list without restarting `ls_signs`.
 
 {% hint style="info" %}
-Signs stream in by distance on each client (250 m, checked every 750 ms). These values are fixed in the client renderer — not configurable in `config.lua`. Signs use client-local glyph props (not networked entities).
+Signs use client-local glyph props (not networked entities). Each player toggles visibility independently with `Config.toggleCommand`.
 {% endhint %}
 
 ### Editor limits
@@ -147,17 +166,14 @@ Config.nearbyDistance = 75.0
 Default spacing and the min/max/step values for sliders in the sign creator. Server-side clamps apply on save — clients cannot bypass these ranges.
 
 * `Config.lineGap` — Default vertical gap between lines (font units × sign scale). Used for new signs and as the fallback when loading old rows.
-* `Config.lineGapRange` — Slider bounds for multi-line signs (`min`, `max`, `step`).
 * `Config.panelPadding` — Extra space around text when auto-sizing the background panel (`x` horizontal, `y` vertical, in font units).
 * `Config.panelDepth` — How far the panel sits behind the glyphs along the sign's forward axis.
 * `Config.panelSizeRange` — Width/height multipliers on the auto-sized panel (`1.0` = fit text + padding). `default` is the starting slider value.
-* `Config.scaleRange` — Uniform text and panel scale. Very large `max` values can produce huge signs — test before giving untrusted admins access.
 
 **Example:** Tighter default line spacing for stacked menu boards:
 
 ```lua
 Config.lineGap = 0.9
-Config.lineGapRange = { min = 0.4, max = 2.0, step = 0.05 }
 ```
 
 ### Database
@@ -166,7 +182,7 @@ Config.lineGapRange = { min = 0.4, max = 2.0, step = 0.05 }
 
 ## Locale
 
-Player-facing strings for keybinds and similar UI labels are in `locale.lua`. See [Locale | Translations](./locale.md).
+Player-facing strings for keybinds and similar UI labels are in `locale.lua`. See [Locale | Translations](./locale-or-translations.md).
 
 ## After changing config
 
